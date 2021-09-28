@@ -127,17 +127,16 @@ function start() {
       track.stop();
     });
   }
+
+
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
     audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    video: {
-      deviceId: videoSource
-      // facingMode: "2K HD Camera" ? videoSource : '2K HD Camera'
-    }
+    // video: {deviceId: videoSource}
+    video: { width: 1280, height: 720 },
   };
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
-
 }
 
 audioInputSelect.onchange = start;
@@ -149,4 +148,3 @@ setTimeout(function () {
   start();
 },100)
 
-// start();
