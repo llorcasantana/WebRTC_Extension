@@ -19,7 +19,7 @@ function gotDevices(deviceInfos) {
   // action = 0;
   // Handles being called several times to update labels. Preserve values.
   // changedefault.detected=deviceInfos.find(device=>device.label===changedefault.detect)
-  console.log(deviceInfos.find(device=>device.label===changedefault.detect))
+  // console.log(deviceInfos.find(device=>device.label===changedefault.detect))
   const values = selectors.map(select => select.value);
   selectors.forEach(select => {
     while (select.firstChild) {
@@ -54,9 +54,9 @@ function gotDevices(deviceInfos) {
     } else if (deviceInfo.kind === 'videoinput') {
       if (deviceInfo.label.includes(changedefault.detect)){
         changedefault.detected = deviceInfo.label.includes(changedefault.detect)
-        console.log(deviceInfo.label.includes(changedefault.detect))
+        // console.log(deviceInfo.label.includes(changedefault.detect))
         // videoSelect.selectedIndex = 1
-        option.text = deviceInfo.label + 'esta es la tipa' || `camera ${videoSelect.length + 1}`;
+        option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`; // 2K HD Camera
       }else{
         option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
       }
@@ -80,7 +80,7 @@ navigator.mediaDevices.ondevicechange = function(event) {
   // console.log('Dispositivos cambiados')
   // navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
   setTimeout(function () {
-    start();
+    start('onDeviceChanged');
   },1000)
 }
 // Attach audio output device to video element using device/sink ID.
@@ -121,7 +121,7 @@ function handleError(error) {
   console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
 }
 
-function start() {
+function start(isDeviceChanged) {
   if (window.stream) {
     window.stream.getTracks().forEach(track => {
       track.stop();
@@ -131,11 +131,21 @@ function start() {
 
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
-  const constraints = {
-    audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    // video: {deviceId: videoSource}
-    video: { width: 1280, height: 720 },
-  };
+  let constraints = {}
+  console.log(isDeviceChanged)
+  if (isDeviceChanged==='onDeviceChanged'){
+    constraints = {
+      audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+      // video: {deviceId: videoSource}
+      video: { width: 1280, height: 720 },
+    };
+  }else{
+    constraints = {
+      audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
+      video: {deviceId: videoSource}
+      // video: { width: 1280, height: 720 },
+    };
+  }
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
 }
 
@@ -145,6 +155,6 @@ audioOutputSelect.onchange = changeAudioDestination;
 videoSelect.onchange = start;
 
 setTimeout(function () {
-  start();
+  start(false);
 },100)
 
